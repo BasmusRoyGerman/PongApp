@@ -5,18 +5,20 @@ import javax.swing.SwingUtilities;
 
 public class PongApp {
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            GameMode mode = askMode();
-            Difficulty difficulty = (mode == GameMode.VS_COMPUTER) ? askDifficulty() : Difficulty.MEDIUM;
-            new GameFrame(mode, difficulty).setVisible(true);
-        });
+        SwingUtilities.invokeLater(PongApp::startGame);
+    }
+
+    public static void startGame() {
+        GameMode mode = askMode();
+        Difficulty difficulty = (mode == GameMode.VS_COMPUTER) ? askDifficulty() : Difficulty.MEDIUM;
+        new GameFrame(mode, difficulty).setVisible(true);
     }
 
     private static GameMode askMode() {
-        Object[] options = {"2 Spieler", "Gegen Computer"};
+        Object[] options = {"2 Players", "Against Computer"};
         int choice = JOptionPane.showOptionDialog(
                 null,
-                "Wähle einen Spielmodus:",
+                "Choose a game mode:",
                 "Pong",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
@@ -32,8 +34,8 @@ public class PongApp {
         Object[] options = {"Easy", "Medium", "Hard"};
         int choice = JOptionPane.showOptionDialog(
                 null,
-                "Wähle einen Schwierigkeitsgrad:",
-                "Pong – Schwierigkeit",
+                "Choose a difficulty:",
+                "Pong – Difficulty",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,

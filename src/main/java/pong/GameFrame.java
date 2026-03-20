@@ -9,7 +9,10 @@ public class GameFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        GamePanel panel = new GamePanel(mode, difficulty);
+        GamePanel panel = new GamePanel(mode, difficulty, () -> {
+            dispose();
+            SwingUtilities.invokeLater(PongApp::startGame);
+        });
         setContentPane(panel);
         pack();
         setLocationRelativeTo(null);
