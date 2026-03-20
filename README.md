@@ -43,6 +43,14 @@ Beim Start erscheint ein Dialog zur Moduswahl:
 - **2 Spieler** – beide Schläger werden manuell gesteuert
 - **Gegen Computer** – der rechte Schläger wird von einer KI gesteuert
 
+Bei **Gegen Computer** wird anschließend der Schwierigkeitsgrad abgefragt:
+
+| Schwierigkeit | Beschreibung |
+|---------------|--------------|
+| **Easy**      | Langsame KI mit großer Toleranzzone |
+| **Medium**    | Ausgeglichene KI (Standard) |
+| **Hard**      | Schnelle, reaktionsstarke KI |
+
 ## Siegbedingung
 
 Das erste Team, das **10 Punkte** erzielt, gewinnt. Danach kann mit `R` neu gestartet werden.

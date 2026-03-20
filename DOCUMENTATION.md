@@ -17,10 +17,11 @@ Objektorientiertes Pong-Spiel in Java (Swing), aufgeteilt in klar getrennte Schi
 - 2 Modi:
   - `TWO_PLAYERS` (lokal): links `W/S`, rechts `↑/↓`
   - `VS_COMPUTER`: links `W/S`, rechts KI
+- 3 Schwierigkeitsgrade (nur `VS_COMPUTER`): `EASY`, `MEDIUM`, `HARD`
 - Pause: `P`
 - Neustart: `R`
 - Siegbedingung: erstes Team mit 10 Punkten (konfigurierbar via `GameConstants.MAX_SCORE`)
-- Smooth-AI mit einstellbarer Reaktionsverzögerung (`reactionBlend`)
+- Smooth-AI mit schwierigkeitsabhängiger Geschwindigkeit, Toleranzzone und Reaktionsverzögerung (`reactionBlend`)
 
 ---
 
@@ -53,6 +54,7 @@ package pong {
   class PongApp {
     +{static} main(args: String[]): void
     -{static} askMode(): GameMode
+    -{static} askDifficulty(): Difficulty
   }
 
   enum GameMode {
@@ -60,15 +62,21 @@ package pong {
     VS_COMPUTER
   }
 
+  enum Difficulty {
+    EASY
+    MEDIUM
+    HARD
+  }
+
   class GameFrame {
-    +GameFrame(mode: GameMode)
+    +GameFrame(mode: GameMode, difficulty: Difficulty)
   }
 
   class GamePanel {
     -state: GameState
     -input: InputController
     -timer: Timer
-    +GamePanel(mode: GameMode)
+    +GamePanel(mode: GameMode, difficulty: Difficulty)
     #paintComponent(g: Graphics): void
   }
 
@@ -78,9 +86,10 @@ package pong {
     -ball: Ball
     -score: Score
     -mode: GameMode
+    -difficulty: Difficulty
     -ai: AiController
     -paused: boolean
-    +GameState(mode: GameMode)
+    +GameState(mode: GameMode, difficulty: Difficulty)
     +update(dt: double, input: InputController): void
     +togglePause(): void
     +resetMatch(): void
@@ -89,6 +98,7 @@ package pong {
     +getBall(): Ball
     +getScore(): Score
     +getMode(): GameMode
+    +getDifficulty(): Difficulty
     +isPaused(): boolean
   }
 }
@@ -186,6 +196,7 @@ package pong.util {
 ' Relationships
 PongApp ..> GameFrame : creates
 PongApp ..> GameMode : uses
+PongApp ..> Difficulty : uses
 GameFrame *-- GamePanel : contains
 GamePanel *-- GameState : owns
 GamePanel *-- InputController : owns
@@ -194,6 +205,7 @@ GameState *-- Ball : 1
 GameState *-- Score : 1
 GameState o-- AiController : optional
 GameState ..> InputController : uses
+GameState ..> Difficulty : uses
 AiController ..> Paddle : controls
 AiController ..> Ball : reads
 Ball ..> Paddle : reads (bounceFromPaddle)
@@ -214,14 +226,15 @@ AiController ..> GameConstants : uses
 
 | Klasse | Paket | Aufgabe |
 |---|---|---|
-| `PongApp` | `pong` | Einstiegspunkt, Moduswahl via `JOptionPane` |
+| `PongApp` | `pong` | Einstiegspunkt, Moduswahl und Schwierigkeitsauswahl via `JOptionPane` |
 | `GameFrame` | `pong` | Swing-Fenster, hält das `GamePanel` |
 | `GamePanel` | `pong` | Rendering (Swing), Game-Loop via `javax.swing.Timer` |
 | `GameState` | `pong` | Spielzustand, Update-Logik, Kollisionserkennung, Punktestand |
 | `GameMode` | `pong` | Enum: `TWO_PLAYERS` / `VS_COMPUTER` |
+| `Difficulty` | `pong` | Enum: `EASY` / `MEDIUM` / `HARD` – steuert KI-Parameter |
 | `Paddle` | `pong.model` | Schläger-Position, Bewegung, Kollisionsbox |
 | `Ball` | `pong.model` | Ball-Position, Bewegung, Wandreflexion, Paddle-Bounce |
 | `Score` | `pong.model` | Punktestand, Siegbedingung |
 | `InputController` | `pong.input` | Tastatureingaben via `KeyAdapter` |
-| `AiController` | `pong.ai` | KI-Steuerung des rechten Schlägers mit Reaktionsverzögerung |
+| `AiController` | `pong.ai` | KI-Steuerung des rechten Schlägers mit schwierigkeitsabhängiger Reaktion |
 | `GameConstants` | `pong.util` | Zentrale Spielkonstanten (Größen, Geschwindigkeiten, Farben) |
