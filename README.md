@@ -27,6 +27,35 @@ The finished JAR is located under `build/libs/`:
 java -jar build/libs/PongApp-1.0.jar
 ```
 
+## Startup Menu
+
+At launch a full-screen menu appears with the following options:
+
+### Language
+
+Choose between **English** and **Deutsch**. The entire UI (menu labels, in-game text, overlays) switches language immediately when you select a different option. The language is also remembered when you return to the menu mid-game.
+
+### Game Mode
+
+| Option | Description |
+|--------|-------------|
+| **2 Players** | Both paddles are controlled manually |
+| **vs. Computer** | The right paddle is controlled by an AI |
+
+### Difficulty
+
+| Difficulty | Description |
+|------------|-------------|
+| **Easy** | Slow AI with a large tolerance zone |
+| **Medium** | Balanced AI (default) |
+| **Hard** | Fast, highly reactive AI |
+
+> The difficulty options are greyed out when **2 Players** is selected and become active only when **vs. Computer** is chosen.
+
+### Start Game button
+
+Press **Start Game** to launch the game with the selected parameters.
+
 ## Controls
 
 | Action                  | Key (Left) | Key (Right / 2P) |
@@ -35,26 +64,11 @@ java -jar build/libs/PongApp-1.0.jar
 | Paddle down             | `S`        | `↓`              |
 | Pause                   | `P`        | –                |
 | Restart                 | `R`        | –                |
-| Back to mode selection  | `M` *(while paused or after game ends)* | – |
-
-## Game Modes
-
-At startup a dialog appears to select the mode:
-
-- **2 Players** – both paddles are controlled manually
-- **vs. Computer** – the right paddle is controlled by an AI
-
-When **vs. Computer** is selected, the difficulty level is then requested:
-
-| Difficulty | Description |
-|------------|-------------|
-| **Easy**   | Slow AI with a large tolerance zone |
-| **Medium** | Balanced AI (default) |
-| **Hard**   | Fast, highly reactive AI |
+| Back to menu            | `M` *(while paused or after game ends)* | – |
 
 ## Win Condition
 
-The first team to score **10 points** wins. Afterwards the game can be restarted with `R`, or you can return to the mode selection screen with `M`.
+The first team to score **10 points** wins. Afterwards the game can be restarted with `R`, or you can return to the menu with `M`.
 
 ## Documentation
 
