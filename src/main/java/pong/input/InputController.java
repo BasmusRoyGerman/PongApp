@@ -2,11 +2,11 @@ package pong.input;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InputController extends KeyAdapter {
-    private final Set<Integer> down = new HashSet<>();
+    private final Set<Integer> down = ConcurrentHashMap.newKeySet();
 
     @Override
     public void keyPressed(KeyEvent e) {

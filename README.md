@@ -58,7 +58,7 @@ Press **Start Game** to launch the game with the selected parameters.
 
 ### Fullscreen
 
-Check the **Fullscreen** checkbox to launch the game in fullscreen mode. Uncheck it to play in a window. The setting is remembered if you return to the menu mid-game. Gameplay speed (ball and paddle movement) is identical in both windowed and fullscreen mode, regardless of display refresh rate.
+Check the **Fullscreen** checkbox to launch the game in fullscreen mode. Uncheck it to play in a window. The setting is remembered if you return to the menu mid-game. Gameplay speed (ball and paddle movement) is identical in both windowed and fullscreen mode, regardless of display refresh rate. Keyboard input is tracked with a thread-safe set (`ConcurrentHashMap.newKeySet()`) and repaints are scheduled directly from the game loop thread to minimise latency on 60 Hz displays.
 
 ## Controls
 

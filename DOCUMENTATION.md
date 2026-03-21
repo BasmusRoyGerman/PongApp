@@ -27,6 +27,8 @@ An object-oriented Pong game in Java (Swing), divided into clearly separated lay
 - Language selection: **English** / **Deutsch** — switches all UI text instantly; remembered when returning to the menu
 - Fullscreen rendering scales to the actual screen size
 - Real-time simulation independent of rendering speed and display refresh rate (fixed-timestep game loop thread; frame time clamped to avoid spiral-of-death)
+- Thread-safe keyboard input: key state is tracked with a `ConcurrentHashMap`-backed set, safe for concurrent reads from the game loop thread and writes from the EDT
+- Reduced repaint latency: `repaint()` is called directly from the game loop thread (no extra EDT queue hop via `invokeLater`); `repaintPending` is reset only after an actual frame has been painted, ensuring at most one outstanding repaint request at all times
 - Pause toggle: `P`
 - Restart: `R`
 - In-game menu: `Esc` (pauses game, overlay menu on top of the game)
@@ -250,6 +252,7 @@ package pong.input {
     +keyReleased(e: KeyEvent): void
     +isDown(keyCode: int): boolean
   }
+  note right of InputController : down is backed by ConcurrentHashMap.newKeySet()\nfor safe concurrent access between game loop and EDT
 }
 
 package pong.ai {
@@ -334,7 +337,7 @@ Lang ..> Score : uses
 | `MenuPanel` | `pong` | Pre-game menu: language radio buttons, game-mode radio buttons, difficulty radio buttons (greyed out when 2 Players is selected), fullscreen checkbox, "Start Game" button |
 | `MenuPanel.MenuResult` | `pong` | Record returned by `MenuPanel` carrying mode, difficulty, language, and fullscreen flag |
 | `GameFrame` | `pong` | Game window; hosts `GamePanel` as content pane and `InGameMenuPanel` as glass pane; wires ESC-key logic to show/hide the overlay; handles fullscreen; scales game to screen |
-| `GamePanel` | `pong` | Rendering (Swing), game loop via a dedicated `Thread` with a fixed-timestep accumulator (real-time simulation independent of rendering speed); handles `P`/`R`/`Esc` hotkeys; scales drawing to fill actual component size (fullscreen fix); uses `Lang` for all overlay text |
+| `GamePanel` | `pong` | Rendering (Swing), game loop via a dedicated `Thread` with a fixed-timestep accumulator (real-time simulation independent of rendering speed); handles `P`/`R`/`Esc` hotkeys; scales drawing to fill actual component size (fullscreen fix); calls `repaint()` directly from the game loop thread (no extra EDT queue hop) and resets `repaintPending` inside `paintComponent` after each actual frame is painted; uses `Lang` for all overlay text |
 | `InGameMenuPanel` | `pong` | Semi-transparent glass-pane overlay shown on `Esc`; provides Resume / New Game / Exit buttons plus all game settings (language, mode, difficulty, fullscreen); game stays visible behind it |
 | `GameState` | `pong` | Game state, update logic, collision detection, score |
 | `GameMode` | `pong` | Enum: `TWO_PLAYERS` / `VS_COMPUTER` |
@@ -343,6 +346,6 @@ Lang ..> Score : uses
 | `Paddle` | `pong.model` | Paddle position, movement, collision box |
 | `Ball` | `pong.model` | Ball position, movement, wall reflection, paddle bounce |
 | `Score` | `pong.model` | Score, win condition |
-| `InputController` | `pong.input` | Keyboard input via `KeyAdapter` |
+| `InputController` | `pong.input` | Thread-safe keyboard input via `KeyAdapter`; key state is stored in a `ConcurrentHashMap`-backed set so reads from the game loop thread and writes from the EDT are safe without additional synchronization |
 | `AiController` | `pong.ai` | AI control of the right paddle with difficulty-dependent reaction |
 | `GameConstants` | `pong.util` | Central game constants (sizes, speeds, colors) |
