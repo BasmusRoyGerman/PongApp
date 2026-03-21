@@ -77,10 +77,7 @@ public class GamePanel extends JPanel {
 
                 if (!repaintPending) {
                     repaintPending = true;
-                    SwingUtilities.invokeLater(() -> {
-                        repaintPending = false;
-                        repaint();
-                    });
+                    repaint();
                 }
 
                 try {
@@ -222,6 +219,8 @@ public class GamePanel extends JPanel {
             g2.drawString(hint, (GameConstants.WIDTH - hw) / 2, GameConstants.HEIGHT / 2 + 34);
         }
 
+        // Frame has been painted; allow the game loop to queue the next repaint.
+        repaintPending = false;
         g2.dispose();
     }
 }
