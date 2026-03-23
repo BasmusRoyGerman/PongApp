@@ -20,6 +20,11 @@ import java.awt.Toolkit;
  */
 public enum WindowPreset {
 
+    /**
+     * Fallback preset that matches the logical resolution 1:1
+     * ({@link pong.util.GameConstants#WIDTH} × {@link pong.util.GameConstants#HEIGHT}).
+     * Always available regardless of screen size.
+     */
     P_SMALL("900×600",  900,  600),
     P1080  ("1080p",   1350,  900),
     P1440  ("1440p",   1800, 1200),

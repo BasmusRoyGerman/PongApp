@@ -259,7 +259,8 @@ public class MenuPanel extends JPanel {
 
         // If the currently selected preset is now disabled, auto-select the
         // largest one that fits.
-        if (!presetButton(selectedPreset()).isEnabled()) {
+        JRadioButton selected = presetButton(selectedPreset());
+        if (!selected.isEnabled()) {
             presetButton(WindowPreset.largestFitting(usable)).setSelected(true);
         }
     }
