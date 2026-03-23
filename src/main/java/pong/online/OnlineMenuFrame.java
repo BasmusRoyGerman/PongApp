@@ -234,7 +234,7 @@ public final class OnlineMenuFrame extends JFrame {
                                     + "\n\nMake sure:\n"
                                     + "  • Both devices are on the same network\n"
                                     + "  • The host IP address is correct\n"
-                                    + "  • The host's firewall allows TCP port " + Protocol.DEFAULT_PORT,
+                                    + "  • The host's firewall allows TCP port " + finalPort,
                             "Connection Failed",
                             JOptionPane.ERROR_MESSAGE);
                 });

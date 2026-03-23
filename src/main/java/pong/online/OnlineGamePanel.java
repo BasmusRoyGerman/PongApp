@@ -65,8 +65,8 @@ public final class OnlineGamePanel extends JPanel {
             public void keyPressed(KeyEvent e) {
                 int k = e.getKeyCode();
                 boolean changed = false;
-                if (k == KeyEvent.VK_W || k == KeyEvent.VK_UP)   { upDown   = true;  changed = true; }
-                if (k == KeyEvent.VK_S || k == KeyEvent.VK_DOWN)  { downDown = true;  changed = true; }
+                if (k == KeyEvent.VK_W || k == KeyEvent.VK_UP)        { upDown   = true;  changed = true; }
+                else if (k == KeyEvent.VK_S || k == KeyEvent.VK_DOWN)  { downDown = true;  changed = true; }
                 if (changed) dispatchInput();
                 if (k == KeyEvent.VK_ESCAPE && onEscPressed != null) onEscPressed.run();
             }
@@ -75,8 +75,8 @@ public final class OnlineGamePanel extends JPanel {
             public void keyReleased(KeyEvent e) {
                 int k = e.getKeyCode();
                 boolean changed = false;
-                if (k == KeyEvent.VK_W || k == KeyEvent.VK_UP)   { upDown   = false; changed = true; }
-                if (k == KeyEvent.VK_S || k == KeyEvent.VK_DOWN)  { downDown = false; changed = true; }
+                if (k == KeyEvent.VK_W || k == KeyEvent.VK_UP)        { upDown   = false; changed = true; }
+                else if (k == KeyEvent.VK_S || k == KeyEvent.VK_DOWN)  { downDown = false; changed = true; }
                 if (changed) dispatchInput();
             }
         });
