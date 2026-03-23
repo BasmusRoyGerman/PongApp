@@ -14,8 +14,9 @@ import java.util.function.Consumer;
  * <p>Shows four groups of radio buttons (language, game mode, difficulty,
  * window size) and a "Start Game" button.  Difficulty options are automatically
  * greyed out when "2 Players" is selected; they become active again when
- * "vs. Computer" is chosen.  Switching the language instantly re-labels every
- * component.</p>
+ * "vs. Computer" is chosen.  Window-size presets that exceed the usable screen
+ * area are automatically disabled (greyed out).  Switching the language
+ * instantly re-labels every component.</p>
  */
 public class MenuPanel extends JPanel {
 
@@ -50,6 +51,7 @@ public class MenuPanel extends JPanel {
     private final JRadioButton rbPreset1080  = new JRadioButton(WindowPreset.P1080.label);
     private final JRadioButton rbPreset1440  = new JRadioButton(WindowPreset.P1440.label);
     private final JRadioButton rbPreset4K    = new JRadioButton(WindowPreset.P4K.label);
+    private final JRadioButton rbPresetSmall = new JRadioButton(WindowPreset.P_SMALL.label);
 
     // ── start button ─────────────────────────────────────────────────────────
     private final JButton btnStart = new JButton();
@@ -57,7 +59,8 @@ public class MenuPanel extends JPanel {
     // ── disabled foreground colour ────────────────────────────────────────────
     private static final Color FG_DISABLED = new Color(110, 110, 120);
 
-    public MenuPanel(Lang initialLang, WindowPreset initialPreset, Consumer<MenuResult> onStart) {
+    public MenuPanel(Lang initialLang, WindowPreset initialPreset,
+                     GraphicsConfiguration gc, Consumer<MenuResult> onStart) {
         this.lang = initialLang;
 
         setBackground(GameConstants.BG);
@@ -91,6 +94,7 @@ public class MenuPanel extends JPanel {
         bgPreset.add(rbPreset1080);
         bgPreset.add(rbPreset1440);
         bgPreset.add(rbPreset4K);
+        bgPreset.add(rbPresetSmall);
         presetButton(initialPreset).setSelected(true);
 
         // ── shared styling ────────────────────────────────────────────────────
@@ -122,6 +126,9 @@ public class MenuPanel extends JPanel {
 
         // difficulty starts disabled (2 Players is the default selection)
         applyDifficultyEnabled(false);
+
+        // disable presets that don't fit on the current screen
+        applyPresetAvailability(gc);
 
         // apply initial text
         refreshLabels();
@@ -191,6 +198,10 @@ public class MenuPanel extends JPanel {
         c.gridx = 1; c.gridy = row;   add(rbPreset1440, c);
         c.gridx = 2; c.gridy = row++; add(rbPreset4K,   c);
 
+        c.gridx = 0; c.gridy = row++; c.gridwidth = 1;
+        c.insets = itemInsets();
+        add(rbPresetSmall, c);
+
         // ── start button ──────────────────────────────────────────────────────
         c.gridx = 0; c.gridy = row; c.gridwidth = 3;
         c.anchor = GridBagConstraints.CENTER;
@@ -218,16 +229,44 @@ public class MenuPanel extends JPanel {
 
     private JRadioButton presetButton(WindowPreset preset) {
         return switch (preset) {
-            case P1440 -> rbPreset1440;
-            case P4K   -> rbPreset4K;
-            default    -> rbPreset1080;
+            case P1440   -> rbPreset1440;
+            case P4K     -> rbPreset4K;
+            case P_SMALL -> rbPresetSmall;
+            default      -> rbPreset1080;
         };
     }
 
     private WindowPreset selectedPreset() {
-        if (rbPreset1440.isSelected()) return WindowPreset.P1440;
-        if (rbPreset4K.isSelected())   return WindowPreset.P4K;
+        if (rbPreset1440.isSelected())  return WindowPreset.P1440;
+        if (rbPreset4K.isSelected())    return WindowPreset.P4K;
+        if (rbPresetSmall.isSelected()) return WindowPreset.P_SMALL;
         return WindowPreset.P1080;
+    }
+
+    /**
+     * Disables preset radio buttons whose window size exceeds the usable screen
+     * area, and ensures the current selection remains on an enabled preset.
+     */
+    private void applyPresetAvailability(GraphicsConfiguration gc) {
+        Dimension usable = WindowPreset.usableSize(gc);
+
+        setPresetEnabled(rbPreset1080, WindowPreset.P1080.fitsIn(usable));
+        setPresetEnabled(rbPreset1440, WindowPreset.P1440.fitsIn(usable));
+        setPresetEnabled(rbPreset4K,   WindowPreset.P4K.fitsIn(usable));
+        // P_SMALL (900×600) is always enabled
+        rbPresetSmall.setEnabled(true);
+        rbPresetSmall.setForeground(GameConstants.FG);
+
+        // If the currently selected preset is now disabled, auto-select the
+        // largest one that fits.
+        if (!presetButton(selectedPreset()).isEnabled()) {
+            presetButton(WindowPreset.largestFitting(usable)).setSelected(true);
+        }
+    }
+
+    private void setPresetEnabled(JRadioButton rb, boolean enabled) {
+        rb.setEnabled(enabled);
+        rb.setForeground(enabled ? GameConstants.FG : FG_DISABLED);
     }
 
     private void refreshLabels() {
@@ -261,7 +300,7 @@ public class MenuPanel extends JPanel {
                 rbLangEn, rbLangDe,
                 rbMode2P, rbModeComp,
                 rbDiffEasy, rbDiffMedium, rbDiffHard,
-                rbPreset1080, rbPreset1440, rbPreset4K
+                rbPreset1080, rbPreset1440, rbPreset4K, rbPresetSmall
         };
     }
 

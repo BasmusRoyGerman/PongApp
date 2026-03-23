@@ -22,7 +22,7 @@ public class GameFrame extends JFrame {
 
         // ── in-game overlay menu (glass pane) ─────────────────────────────────
         InGameMenuPanel overlay = new InGameMenuPanel(
-                mode, difficulty, lang, preset,
+                mode, difficulty, lang, preset, getGraphicsConfiguration(),
                 // onResume
                 () -> {
                     setGlassPane(new javax.swing.JPanel());  // clear glass pane

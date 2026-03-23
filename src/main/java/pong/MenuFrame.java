@@ -19,7 +19,7 @@ public class MenuFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        MenuPanel panel = new MenuPanel(initialLang, initialPreset, result -> {
+        MenuPanel panel = new MenuPanel(initialLang, initialPreset, getGraphicsConfiguration(), result -> {
             dispose();
             SwingUtilities.invokeLater(() -> onStart.accept(result));
         });

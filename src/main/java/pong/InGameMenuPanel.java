@@ -41,6 +41,7 @@ public class InGameMenuPanel extends JPanel {
     private final JRadioButton rbPreset1080  = new JRadioButton(WindowPreset.P1080.label);
     private final JRadioButton rbPreset1440  = new JRadioButton(WindowPreset.P1440.label);
     private final JRadioButton rbPreset4K    = new JRadioButton(WindowPreset.P4K.label);
+    private final JRadioButton rbPresetSmall = new JRadioButton(WindowPreset.P_SMALL.label);
 
     // ── action buttons ────────────────────────────────────────────────────────
     private final JButton btnResume  = new JButton();
@@ -57,12 +58,15 @@ public class InGameMenuPanel extends JPanel {
      * @param initialDifficulty current difficulty (pre-selects the radio button)
      * @param initialLang       current language
      * @param initialPreset     current window-size preset
+     * @param gc                graphics configuration of the hosting frame, used to
+     *                          determine which presets fit the usable screen area
      * @param onResume          invoked when the player clicks "Resume" or presses Esc
      * @param onNewGame         invoked with the chosen {@link MenuPanel.MenuResult} when the player clicks "New Game"
      * @param onExit            invoked when the player clicks "Exit"
      */
     public InGameMenuPanel(GameMode initialMode, Difficulty initialDifficulty,
                            Lang initialLang, WindowPreset initialPreset,
+                           GraphicsConfiguration gc,
                            Runnable onResume,
                            Consumer<MenuPanel.MenuResult> onNewGame,
                            Runnable onExit) {
@@ -73,7 +77,7 @@ public class InGameMenuPanel extends JPanel {
         setLayout(new GridBagLayout());
 
         // ── inner card ────────────────────────────────────────────────────────
-        JPanel card = buildCard(initialMode, initialDifficulty, initialPreset,
+        JPanel card = buildCard(initialMode, initialDifficulty, initialPreset, gc,
                 onResume, onNewGame, onExit);
         add(card);
     }
@@ -90,7 +94,7 @@ public class InGameMenuPanel extends JPanel {
     // ── card builder ──────────────────────────────────────────────────────────
 
     private JPanel buildCard(GameMode initialMode, Difficulty initialDifficulty,
-                              WindowPreset initialPreset,
+                              WindowPreset initialPreset, GraphicsConfiguration gc,
                               Runnable onResume,
                               Consumer<MenuPanel.MenuResult> onNewGame,
                               Runnable onExit) {
@@ -133,6 +137,7 @@ public class InGameMenuPanel extends JPanel {
         bgPreset.add(rbPreset1080);
         bgPreset.add(rbPreset1440);
         bgPreset.add(rbPreset4K);
+        bgPreset.add(rbPresetSmall);
         presetButton(initialPreset).setSelected(true);
 
         // ── styling ───────────────────────────────────────────────────────────
@@ -163,6 +168,7 @@ public class InGameMenuPanel extends JPanel {
         styleActionButton(btnExit,    new Color(200, 70, 70),  Color.WHITE);
 
         applyDifficultyEnabled(initialMode == GameMode.VS_COMPUTER);
+        applyPresetAvailability(gc);
         refreshLabels();
 
         // ── layout ────────────────────────────────────────────────────────────
@@ -222,6 +228,10 @@ public class InGameMenuPanel extends JPanel {
         c.gridx = 1; c.gridy = row;   card.add(rbPreset1440, c);
         c.gridx = 2; c.gridy = row++; card.add(rbPreset4K,   c);
 
+        c.gridx = 0; c.gridy = row++; c.gridwidth = 1;
+        c.insets = itemInsets();
+        card.add(rbPresetSmall, c);
+
         // button row
         c.gridwidth = 1;
         c.anchor = GridBagConstraints.CENTER;
@@ -256,16 +266,44 @@ public class InGameMenuPanel extends JPanel {
 
     private JRadioButton presetButton(WindowPreset preset) {
         return switch (preset) {
-            case P1440 -> rbPreset1440;
-            case P4K   -> rbPreset4K;
-            default    -> rbPreset1080;
+            case P1440   -> rbPreset1440;
+            case P4K     -> rbPreset4K;
+            case P_SMALL -> rbPresetSmall;
+            default      -> rbPreset1080;
         };
     }
 
     private WindowPreset selectedPreset() {
-        if (rbPreset1440.isSelected()) return WindowPreset.P1440;
-        if (rbPreset4K.isSelected())   return WindowPreset.P4K;
+        if (rbPreset1440.isSelected())  return WindowPreset.P1440;
+        if (rbPreset4K.isSelected())    return WindowPreset.P4K;
+        if (rbPresetSmall.isSelected()) return WindowPreset.P_SMALL;
         return WindowPreset.P1080;
+    }
+
+    /**
+     * Disables preset radio buttons whose window size exceeds the usable screen
+     * area, and ensures the current selection remains on an enabled preset.
+     */
+    private void applyPresetAvailability(GraphicsConfiguration gc) {
+        Dimension usable = WindowPreset.usableSize(gc);
+
+        setPresetEnabled(rbPreset1080, WindowPreset.P1080.fitsIn(usable));
+        setPresetEnabled(rbPreset1440, WindowPreset.P1440.fitsIn(usable));
+        setPresetEnabled(rbPreset4K,   WindowPreset.P4K.fitsIn(usable));
+        // P_SMALL (900×600) is always enabled
+        rbPresetSmall.setEnabled(true);
+        rbPresetSmall.setForeground(GameConstants.FG);
+
+        // If the currently selected preset is now disabled, auto-select the
+        // largest one that fits.
+        if (!presetButton(selectedPreset()).isEnabled()) {
+            presetButton(WindowPreset.largestFitting(usable)).setSelected(true);
+        }
+    }
+
+    private void setPresetEnabled(JRadioButton rb, boolean enabled) {
+        rb.setEnabled(enabled);
+        rb.setForeground(enabled ? GameConstants.FG : FG_DISABLED);
     }
 
     private void refreshLabels() {
@@ -313,7 +351,7 @@ public class InGameMenuPanel extends JPanel {
                 rbLangEn, rbLangDe,
                 rbMode2P, rbModeComp,
                 rbDiffEasy, rbDiffMedium, rbDiffHard,
-                rbPreset1080, rbPreset1440, rbPreset4K
+                rbPreset1080, rbPreset1440, rbPreset4K, rbPresetSmall
         };
     }
 
